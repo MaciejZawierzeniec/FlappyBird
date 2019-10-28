@@ -18,39 +18,45 @@ catImg = pg.image.load('cat.png')
 
 cat_width = 59
 cat_height = 96
-cat_speed = 0
 gameexit = False
 
 
-class Movement():
-    def __init__(self, y_change, event):
-        self.y_change = y_change
-        self.event = event
-
-    def jump(self):
-        if self.event.type == pg.KEYDOWN:
-            if self.event.key == pg.K_UP:
-                self.y_change = +10
-            elif self.event.key == pg.K_DOWN:
-                self.y_change = -10
-        if self.event.type == pg.KEYUP:
-            if self.event.key == pg.K_UP or self.event.key == pg.K_DOWN:
-                self.x_change = 0
-
-    def get_y_change(self):
-        return self.y_change
 
 
 '''Draws a cat'''
 
 
-class Cat(Movement):
-    def __init__(self, x, y):
+class Cat():
+
+    startpos = 0
+    up = True
+
+    def __init__(self, x, y, jump):
         self.x = x
         self.y = y
+        self.jump = jump
 
     def display(self):
         gamedisplay.blit(catImg, (self.x, self.y))
+
+    def _jump(self, jump):
+        self.jump = jump
+
+        if not self.jump:
+            self.startpos = self.y
+            self.jump = True
+        if self.startpos - 100 <= self.y and self.up == True:
+            self.y -= 5
+            print("gora")
+            if self.startpos - 100 == self.y: self.up = False
+        elif self.up == False:
+            print("dol")
+            self.y += 5
+            if self.startpos > self.y:
+                self.jump = False
+
+    def get_y(self):
+        return self.y
 
 
 class Pillar():
@@ -90,11 +96,11 @@ def crash():
 def game_loop():
     global m
     global gameexit
-    x = (display_width * 0.45)
+    x = (display_width * 0.1)
     y = (display_height * 0.4)
-    y_change = 0
+    jump = False
 
-    pillar_speed = 7
+    pillar_speed = 8
 
     lpillar_startx = 800
     lpillar_starty = random.randrange(350, display_height)
@@ -102,19 +108,25 @@ def game_loop():
     lpillar_height = 600
 
     upillar_startx = 800
-    upillar_starty = lpillar_starty - 850
+    upillar_starty = lpillar_starty - 800
     upillar_width = 150
     upillar_height = 600
+
+    c = Cat(x, y, jump)
 
     while not gameexit:
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 gameexit = True
-            m = Movement(y_change, event)
-            m.jump()
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_UP:
+                    c._jump(jump=False)
+                    jump = True
 
-        y -= m.get_y_change()
+        if jump:
+            c._jump(jump)
+
         gamedisplay.fill(white)
 
         low = Pillar(lpillar_startx, lpillar_starty, lpillar_width, lpillar_height, black)
@@ -125,7 +137,7 @@ def game_loop():
         lpillar_startx -= pillar_speed
         upillar_startx -= pillar_speed
 
-        c = Cat(x, y)
+        #c = Cat(x, y, jump)
         c.display()
 
         if lpillar_startx < 0 - lpillar_width:
@@ -135,7 +147,7 @@ def game_loop():
             upillar_startx = 600 + 2 * upillar_width
             upillar_starty = lpillar_starty - 850
 
-        if y + cat_height > lpillar_starty or y < upillar_starty + upillar_height:
+        if c.get_y() + cat_height > lpillar_starty or c.get_y() < upillar_starty + upillar_height:
             if (x + cat_width > lpillar_startx and x < lpillar_startx + lpillar_width or
                     x + cat_width > upillar_startx and x < upillar_startx + upillar_width):
                 crash()
