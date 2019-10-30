@@ -105,13 +105,17 @@ def game_loop():
 
     pillar_speed = 8
 
-    lpillar_startx = 800
+    lpillar_startx = display_width
     lpillar_starty = random.randrange(350, display_height)
+    lpillar2_startx = display_width + 350
+    lpillar2_starty = random.randrange(350, display_height)
     lpillar_width = 150
     lpillar_height = 600
 
-    upillar_startx = 800
+    upillar_startx = display_width
     upillar_starty = lpillar_starty - 800
+    upillar2_startx = display_width + 350
+    upillar2_starty = lpillar2_starty - 800
     upillar_width = 150
     upillar_height = 600
 
@@ -134,21 +138,38 @@ def game_loop():
 
         low = Pillar(lpillar_startx, lpillar_starty, lpillar_width, lpillar_height, black)
         low.place_pillar()
+
+        low2 = Pillar(lpillar2_startx, lpillar2_starty, lpillar_width, lpillar_height, black)
+        low2.place_pillar()
+
         up = Pillar(upillar_startx, upillar_starty, upillar_width, upillar_height, black)
         up.place_pillar()
 
-        lpillar_startx -= pillar_speed
-        upillar_startx -= pillar_speed
+        up2 = Pillar(upillar2_startx, upillar2_starty, upillar_width, upillar_height, black)
+        up2.place_pillar()
 
-        #c = bird(x, y)
-        c.display()
+        lpillar_startx -= pillar_speed
+        lpillar2_startx -= pillar_speed
+        upillar_startx -= pillar_speed
+        upillar2_startx -= pillar_speed
+
+        #c.display()
 
         if lpillar_startx < 0 - lpillar_width:
-            lpillar_startx = 600 + 2 * lpillar_width
-            lpillar_starty = random.randrange(250, display_height - 250)
+            lpillar_startx = display_width
+            lpillar_starty = random.randrange(350, display_height)
         if upillar_startx < 0 - upillar_width:
-            upillar_startx = 600 + 2 * upillar_width
+            upillar_startx = display_width
             upillar_starty = lpillar_starty - 850
+
+        if lpillar2_startx < 0 - lpillar_width:
+            lpillar2_startx = display_width
+            lpillar2_starty = random.randrange(350, display_height)
+        if upillar2_startx < 0 - upillar_width:
+            upillar2_startx = display_width
+            upillar2_starty = lpillar2_starty - 850
+
+        c.display()
 
         if c.get_y() + bird_height > lpillar_starty or c.get_y() < upillar_starty + upillar_height:
             if (x + bird_width > lpillar_startx and x < lpillar_startx + lpillar_width or
