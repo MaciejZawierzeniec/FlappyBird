@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="8f7a1f64-7d49-473e-b0cb-a077d9f08d5a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cat.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/moving.py" beforeDir="false" afterPath="$PROJECT_DIR$/moving.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -48,8 +49,18 @@
       <workItem from="1571915164674" duration="10225000" />
       <workItem from="1571997041699" duration="4234000" />
       <workItem from="1572093692455" duration="6526000" />
-      <workItem from="1572264965853" duration="553000" />
+      <workItem from="1572264965853" duration="3961000" />
+      <workItem from="1572355877743" duration="5643000" />
+      <workItem from="1572439487444" duration="12357000" />
     </task>
+    <task id="LOCAL-00001" summary="goin up and down">
+      <created>1572265630207</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1572265630207</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -67,5 +78,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="goin up and down" />
+    <option name="LAST_COMMIT_MESSAGE" value="goin up and down" />
   </component>
 </project>
