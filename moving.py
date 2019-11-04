@@ -1,6 +1,7 @@
 import pygame as pg
 import time
 import random
+import math
 
 pg.init()
 
@@ -14,56 +15,46 @@ black = (0, 0, 0)
 white = (255, 255, 255)
 
 clock = pg.time.Clock()
-catImg = pg.image.load('cat.png')
+birdImg = pg.image.load('bird.png')
 
-cat_width = 67
-cat_height = 123
-cat_speed = 0
+bird_width = 32
+bird_height = 32
 gameexit = False
 
 
-class Movement():
-    def __init__(self, y_change, event):
-        self.y_change = y_change
-        self.event = event
+class Bird:
+    startpos = 0
+    jump_width = 160
+    jump_height = 160
+    x_change = -(math.sqrt(-4 * (1 / jump_width) * (-jump_height))) / (2 * (1 / jump_width))
+    y_change = 0
+    up = True
 
-    def move(self):
-        if self.event.type == pg.KEYDOWN:
-            if self.event.key == pg.K_LEFT:
-                self.x_change = -10
-            elif self.event.key == pg.K_RIGHT:
-               self. x_change = 10
-        if self.event.type == pg.KEYUP:
-            if self.event.key == pg.K_LEFT or self.event.key == pg.K_RIGHT:
-                self.x_change = 0
-
-    def jump(self):
-        if self.event.type == pg.KEYDOWN:
-            if self.event.key == pg.K_UP:
-                self.y_change = +10
-            elif self.event.key == pg.K_DOWN:
-               self. x_change = -10
-        if self.event.type == pg.KEYUP:
-            if self.event.key == pg.K_LEFT or self.event.key == pg.K_RIGHT:
-                self.x_change = 0
-
-    def get_y_change(self):
-        return self.y_change
-
-
-''''Draws a cat'''
-
-
-class Cat(Movement):
-    def __init__(self, x, y):
+    def __init__(self, x, y, jump, pillar_speed):
         self.x = x
         self.y = y
+        self.jump = jump
+        self.pillar_speed = pillar_speed
 
     def display(self):
-        gamedisplay.blit(catImg, (self.x, self.y))
+        gamedisplay.blit(birdImg, (self.x, self.y))
+
+    def _jump(self, jump):
+        self.jump = jump
+
+        if not self.jump:
+            self.startpos = self.y
+            self.jump = True
+            self.x_change = -(math.sqrt(-4 * (1 / self.jump_width) * (-self.jump_height))) / (2 * (1 / self.jump_width))
+
+        self.y = self.startpos + (1 / self.jump_width) * self.x_change * self.x_change - self.jump_height
+        self.x_change += self.pillar_speed
+
+    def get_y(self):
+        return self.y
 
 
-class Pillar():
+class Pillar:
     def __init__(self, pillarx, pillary, pillarw, pillarh, color):
         self.pillarx = pillarx
         self.pillary = pillary
@@ -81,10 +72,10 @@ def text_objects(text, font):
 
 
 def display_message(text):
-    largeText = pg.font.Font('freesansbold.ttf',115)
-    TextSurf, TextRect = text_objects(text, largeText)
-    TextRect.center = ((display_width/2),(display_height/2))
-    gamedisplay.blit(TextSurf, TextRect)
+    largetext = pg.font.Font('freesansbold.ttf', 115)
+    textsurf, textrect = text_objects(text, largetext)
+    textrect.center = ((display_width / 2), (display_height / 2))
+    gamedisplay.blit(textsurf, textrect)
 
     pg.display.update()
 
@@ -98,52 +89,113 @@ def crash():
 
 
 def game_loop():
-    global m
     global gameexit
-    x = (display_width * 0.45)
-    y = (display_height * 0.4)
-    y_change = 0
+    x = (display_width * 0.1)
+    y = (display_height * 0.65)
+    jump = False
 
-    pillar_startx = 600
-    pillar_starty = random.randrange(0, display_height)
-    pillar_speed = 7
+    pillar_speed = 8
     pillar_width = 100
-    pillar_height = 100
+    pillar_height = 600
+
+    lpillar_startx = display_width
+    lpillar_starty = random.randrange(350, display_height)
+
+    lpillar2_startx = display_width + pillar_width + (display_width - 2 * pillar_width) * 1/3
+    print(pillar_width + (display_width - 3 * pillar_width) * 1/3)
+    lpillar2_starty = random.randrange(350, display_height)
+
+    lpillar3_startx = display_width + 2*pillar_width + (display_width - 2 * pillar_width) * 2/3
+    print(2*pillar_width + (display_width - 3 * pillar_width) * 2/3)
+    lpillar3_starty = random.randrange(350, display_height)
+
+
+    upillar_startx = lpillar_startx
+    upillar_starty = lpillar_starty - 800
+
+    upillar2_startx = lpillar2_startx
+    upillar2_starty = lpillar2_starty - 800
+
+    upillar3_startx = lpillar3_startx
+    upillar3_starty = lpillar3_starty - 800
+
+    c = Bird(x, y, jump, pillar_speed)
 
     while not gameexit:
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 gameexit = True
-            m = Movement(y_change, event)
-            m.jump()
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_UP:
+                    c._jump(jump=False)
+                    jump = True
 
-        y -= m.get_y_change()
+        if jump:
+            c._jump(jump)
+
         gamedisplay.fill(white)
 
-        p = Pillar(pillar_startx, pillar_starty, pillar_width, pillar_height, black)
-        p.place_pillar()
-        pillar_startx -= pillar_speed
-        c = Cat(x, y)
+        low = Pillar(lpillar_startx, lpillar_starty, pillar_width, pillar_height, black)
+        low.place_pillar()
+
+        low2 = Pillar(lpillar2_startx, lpillar2_starty, pillar_width, pillar_height, black)
+        low2.place_pillar()
+
+        low3 = Pillar(lpillar3_startx, lpillar3_starty, pillar_width, pillar_height, black)
+        low3.place_pillar()
+
+        up = Pillar(upillar_startx, upillar_starty, pillar_width, pillar_height, black)
+        up.place_pillar()
+
+        up2 = Pillar(upillar2_startx, upillar2_starty, pillar_width, pillar_height, black)
+        up2.place_pillar()
+
+        up3 = Pillar(upillar3_startx, upillar3_starty, pillar_width, pillar_height, black)
+        up3.place_pillar()
+
         c.display()
 
-        if x > display_width - cat_width or x < 0:
-            crash()
+        if lpillar_startx + pillar_width < 0:
+            lpillar_startx = display_width
+            lpillar_starty = random.randrange(350, display_height)
+        if upillar_startx < 0 - pillar_width:
+            upillar_startx = lpillar_startx
+            upillar_starty = lpillar_starty - 800
 
-        if pillar_startx < 0 - pillar_width:
-            pillar_startx = 600 + 2*pillar_width
-            pillar_starty = random.randrange(0, display_height)
+        if lpillar2_startx + pillar_width < 0:
+            lpillar2_startx = display_width
+            lpillar2_starty = random.randrange(350, display_height)
+        if upillar2_startx < 0 - pillar_width:
+            upillar2_startx = lpillar2_startx
+            upillar2_starty = lpillar2_starty - 800
 
-        if y > pillar_starty + pillar_height: # or y - cat_height > pillar_starty + pillar_height
-            pass
-        elif y + cat_height < pillar_starty:
-            pass
-        else:
-            crash()
+        if lpillar3_startx + pillar_width < 0:
+            lpillar3_startx = display_width
+            lpillar3_starty = random.randrange(350, display_height)
+        if upillar3_startx < 0 - pillar_width:
+            upillar3_startx = lpillar3_startx
+            upillar3_starty = lpillar3_starty - 800
+
+        lpillar_startx -= pillar_speed
+        lpillar2_startx -= pillar_speed
+        lpillar3_startx -= pillar_speed
+
+        upillar_startx -= pillar_speed
+        upillar2_startx -= pillar_speed
+        upillar3_startx -= pillar_speed
+
+
+        if c.get_y() + bird_height > lpillar_starty or c.get_y() < upillar_starty + pillar_height:
+            if (x + bird_width > lpillar_startx and x < lpillar_startx + pillar_width or
+                    x + bird_width > upillar_startx and x < upillar_startx + pillar_width):
+                crash()
 
         pg.display.update()
         clock.tick(60)
 
-if gameexit == False: game_loop()
+
+if not gameexit:
+    game_loop()
 pg.quit()
 quit()
