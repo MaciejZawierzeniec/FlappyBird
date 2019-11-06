@@ -90,7 +90,10 @@
       <workItem from="1572613384083" duration="6323000" />
       <workItem from="1572699720565" duration="5643000" />
       <workItem from="1572877067018" duration="14160000" />
-      <workItem from="1572955832864" duration="14067000" />
+      <workItem from="1572955832864" duration="15448000" />
+      <workItem from="1572995510312" duration="6610000" />
+      <workItem from="1573032979733" duration="64000" />
+      <workItem from="1573039672880" duration="16017000" />
     </task>
     <task id="LOCAL-00001" summary="goin up and down">
       <created>1572265630207</created>
@@ -113,7 +116,14 @@
       <option name="project" value="LOCAL" />
       <updated>1572877212220</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Almost perfect">
+      <created>1572981816096</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1572981816096</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -136,7 +146,8 @@
     <MESSAGE value="goin up and down" />
     <MESSAGE value="Smooth jump" />
     <MESSAGE value="Almost done" />
-    <option name="LAST_COMMIT_MESSAGE" value="Almost done" />
+    <MESSAGE value="Almost perfect" />
+    <option name="LAST_COMMIT_MESSAGE" value="Almost perfect" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/pygame$moving.coverage" NAME="moving Coverage Results" MODIFIED="1572639246666" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
