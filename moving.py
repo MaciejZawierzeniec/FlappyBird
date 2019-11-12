@@ -11,8 +11,9 @@ pg.init()
 gamedisplay = pg.display.set_mode((display_width, display_height))
 pg.display.set_caption('test')
 
-black = (0, 0, 0)
-white = (255, 255, 255)
+red = (255, 0, 0)
+green = (0, 255, 0)
+blue = (0, 0, 200)
 
 clock = pg.time.Clock()
 birdImg = pg.image.load('bird.png')
@@ -54,6 +55,8 @@ class Bird:
                   self.x_change * self.x_change - self.jump_height)
         self.x_change += self.pillar_speed
 
+
+    #def start_falling
     def collision(self):
         for pillar in GeneratePillars.pillars_list:
             if self.y + bird_height < pillar.lpillary and\
@@ -63,7 +66,7 @@ class Bird:
                 if (self.x + bird_width > pillar.lpillarx >
                         self.x - GeneratePillars.pillar_width or
                         self.x + bird_width > pillar.upillarx >
-                        self.x - bird_width - GeneratePillars.pillar_width):
+                        self.x - GeneratePillars.pillar_width):
                     return True
 
     # > self.x >
@@ -78,7 +81,7 @@ class Bird:
 class Pillar:
     pillarsh = 0
     firstiteration = True
-    color = black
+    color = green
 
     def __init__(self, upillarx, upillary, lpillarx,
                  lpillary, pillarw, pillar_height):
@@ -191,7 +194,7 @@ class GeneratePillars:
 
 
 def text_objects(text, font):
-    text_surface = font.render(text, True, black)
+    text_surface = font.render(text, True, red)
     return text_surface, text_surface.get_rect()
 
 
@@ -241,7 +244,7 @@ def game_loop():
         if jump:
             bird._jump(jump)
 
-        gamedisplay.fill(white)
+        gamedisplay.fill(blue)
 
         gp.generate_pillars()
         gp.display()
