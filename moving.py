@@ -8,7 +8,7 @@ display_height = 600
 
 pg.init()
 
-gamedisplay = pg.display.set_mode((display_width, display_height))
+gameDisplay = pg.display.set_mode((display_width, display_height))
 pg.display.set_caption('test')
 
 red = (255, 0, 0)
@@ -24,7 +24,7 @@ game_exit = False
 
 
 class Bird:
-    startpos = 0
+    start_position = 0
     jump_width = 160
     jump_height = 80
     x_change = -(math.sqrt(-4 * (1 / jump_width) *
@@ -39,24 +39,22 @@ class Bird:
         self.pillar_speed = pillar_speed
 
     def display(self):
-        gamedisplay.blit(birdImg, (self.x, self.y))
+        gameDisplay.blit(birdImg, (self.x, self.y))
 
     def _jump(self, jump):
         self.jump = jump
 
         if not self.jump:
-            self.startpos = self.y
+            self.start_position = self.y
             self.jump = True
             self.x_change = (-(math.sqrt(-4 * (1 / self.jump_width) *
                                          (-self.jump_height))) /
                              (2 * (1 / self.jump_width)))
 
-        self.y = (self.startpos + (1 / self.jump_width) *
+        self.y = (self.start_position + (1 / self.jump_width) *
                   self.x_change * self.x_change - self.jump_height)
         self.x_change += self.pillar_speed
 
-
-    #def start_falling
     def collision(self):
         for pillar in GeneratePillars.pillars_list:
             if self.y + bird_height < pillar.lpillary and\
@@ -69,8 +67,6 @@ class Bird:
                         self.x - GeneratePillars.pillar_width):
                     return True
 
-    # > self.x >
-
     def get_y(self):
         return self.y
 
@@ -79,8 +75,8 @@ class Bird:
 
 
 class Pillar:
-    pillarsh = 0
-    firstiteration = True
+    pillar_shift = 0
+    first_iteration = True
     color = green
 
     def __init__(self, upillarx, upillary, lpillarx,
@@ -93,19 +89,19 @@ class Pillar:
         self.pillar_height = pillar_height
 
     def display_pillar(self):
-        self.upillarx += self.pillarsh
-        self.lpillarx += self.pillarsh
+        self.upillarx += self.pillar_shift
+        self.lpillarx += self.pillar_shift
 
-        pg.draw.rect(gamedisplay, self.color, [self.upillarx,
+        pg.draw.rect(gameDisplay, self.color, [self.upillarx,
                                                self.upillary, self.pillarw, self.pillar_height])
-        pg.draw.rect(gamedisplay, self.color, [self.lpillarx,
+        pg.draw.rect(gameDisplay, self.color, [self.lpillarx,
                                                self.lpillary, self.pillarw, self.pillar_height])
 
     def get_pillar_shift(self):
-        return self.pillarsh
+        return self.pillar_shift
 
     def zero_shift(self):
-        self.pillarsh = 0
+        self.pillar_shift = 0
 
 
 class GeneratePillars:
@@ -147,13 +143,13 @@ class GeneratePillars:
                     self.pillars_list[self.i].lpillary - 800
 
             if self.pillars_list[self.i].lpillarx <= 0 - self.pillar_width + self.pillar_speed \
-                    and not self.pillars_list[self.i].firstiteration:
+                    and not self.pillars_list[self.i].first_iteration:
                 self.pillars_list[self.i].lpillary = \
                     random.randrange(self.lower_pillar_min_height, display_height)
                 self.pillars_list[self.i].upillary = \
                     self.pillars_list[self.i].lpillary - 800
             else:
-                if self.pillars_list[self.i].firstiteration:
+                if self.pillars_list[self.i].first_iteration:
                     self.pillars_list[self.i].upillarx = self.upillar_startx
                     self.pillars_list[self.i].lpillarx = self.lpillar_startx
                 else:
@@ -173,7 +169,7 @@ class GeneratePillars:
 
     def move_pillars(self):
         for pillar in self.pillars_list:
-            pillar.pillarsh -= self.pillar_speed
+            pillar.pillar_shift -= self.pillar_speed
 
     def move_to_startpos(self):
 
@@ -186,7 +182,7 @@ class GeneratePillars:
                 pillar.upillary = pillar.lpillary - 800
 
                 pillar.zero_shift()
-                pillar.firstiteration = False
+                pillar.first_iteration = False
 
             self.i += 1
 
@@ -202,7 +198,7 @@ def display_message(text):
     largetext = pg.font.Font('freesansbold.ttf', 115)
     textsurf, textrect = text_objects(text, largetext)
     textrect.center = ((display_width / 2), (display_height / 2))
-    gamedisplay.blit(textsurf, textrect)
+    gameDisplay.blit(textsurf, textrect)
 
     pg.display.update()
 
@@ -244,7 +240,7 @@ def game_loop():
         if jump:
             bird._jump(jump)
 
-        gamedisplay.fill(blue)
+        gameDisplay.fill(blue)
 
         gp.generate_pillars()
         gp.display()
