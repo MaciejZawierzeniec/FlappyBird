@@ -9,7 +9,7 @@ display_height = 600
 pg.init()
 
 gameDisplay = pg.display.set_mode((display_width, display_height))
-pg.display.set_caption('test')
+pg.display.set_caption('Flappy Bird')
 
 red = (255, 0, 0)
 green = (0, 255, 0)
@@ -28,171 +28,135 @@ class Bird:
     jump_width = 160
     jump_height = 80
     points = 0
-    x_change = -(math.sqrt(-4 * (1 / jump_width) *
-                           (-jump_height))) / (2 * (1 / jump_width))
     y_change = 0
     up = True
+    X_SHIFT = -(math.sqrt(-4 * (1 / jump_width) * (-jump_height))) / (2 * (1 / jump_width))
 
-    def __init__(self, x, y, jump, pillar_speed):
+    def __init__(self, x, y, is_jumping, tube_speed):
         self.x = x
         self.y = y
-        self.jump = jump
-        self.pillar_speed = pillar_speed
+        self.is_jumping = is_jumping
+        self.tube_speed = tube_speed
+        self.x_shift = self.X_SHIFT
 
     def display(self):
         gameDisplay.blit(birdImg, (self.x, self.y))
 
-    def _jump(self, jump):
-        self.jump = jump
+    def jump(self, is_jumping):
+        self.is_jumping = is_jumping
 
-        if not self.jump:
+        if not self.is_jumping:
             self.start_position = self.y
-            self.jump = True
-            self.x_change = (-(math.sqrt(-4 * (1 / self.jump_width) *
-                                         (-self.jump_height))) /
-                             (2 * (1 / self.jump_width)))
+            self.is_jumping = True
+            self.x_shift = self.X_SHIFT
 
         self.y = (self.start_position + (1 / self.jump_width) *
-                  self.x_change * self.x_change - self.jump_height)
-        self.x_change += self.pillar_speed
+                  self.x_shift ** 2 - self.jump_height)
+        self.x_shift += self.tube_speed
 
     def collision(self):
-        for pillar in GeneratePillars.pillars_list:
-            if self.y + bird_height < pillar.lpillary and\
-                    self.y > pillar.upillary + pillar.pillar_height:
-                if pillar.upillarx == self.x:
+        for tube in TubeManagement.tubes:
+            if self.y + bird_height < tube.lower_tube_y and \
+                    self.y > tube.upper_tube_y + tube.tube_height:
+                if tube.upper_tube_x == self.x:
                     self.points += 1
             else:
-                if (self.x + bird_width > pillar.lpillarx >
-                        self.x - GeneratePillars.pillar_width or
-                        self.x + bird_width > pillar.upillarx >
-                        self.x - GeneratePillars.pillar_width):
+                if (self.x + bird_width > tube.lower_tube_x >
+                        self.x - TubeManagement.tube_width or
+                        self.x + bird_width > tube.upper_tube_x >
+                        self.x - TubeManagement.tube_width):
                     self.points = 0
                     return True
-
-    def get_y(self):
-        return self.y
-
-    def get_x(self):
-        return self.x
 
     def get_points(self):
         return self.points
 
 
-class Pillar:
-    pillar_shift = 0
+class Tube:
+    tube_shift = 0
     first_iteration = True
     color = green
 
-    def __init__(self, upillarx, upillary, lpillarx,
-                 lpillary, pillarw, pillar_height):
-        self.upillarx = upillarx
-        self.upillary = upillary
-        self.lpillarx = lpillarx
-        self.lpillary = lpillary
-        self.pillarw = pillarw
-        self.pillar_height = pillar_height
+    def __init__(self, upper_tube_x, upper_tube_y, lower_tube_x, lower_tube_y, tube_width, tube_height):
+        self.upper_tube_x = upper_tube_x
+        self.upper_tube_y = upper_tube_y
+        self.lower_tube_x = lower_tube_x
+        self.lower_tube_y = lower_tube_y
+        self.tube_width = tube_width
+        self.tube_height = tube_height
 
-    def display_pillar(self):
-        self.upillarx += self.pillar_shift
-        self.lpillarx += self.pillar_shift
+    def display_tube(self):
+        self.upper_tube_x += self.tube_shift
+        self.lower_tube_x += self.tube_shift
 
-        pg.draw.rect(gameDisplay, self.color, [self.upillarx,
-                                               self.upillary, self.pillarw, self.pillar_height])
-        pg.draw.rect(gameDisplay, self.color, [self.lpillarx,
-                                               self.lpillary, self.pillarw, self.pillar_height])
-
-    def get_pillar_shift(self):
-        return self.pillar_shift
+        pg.draw.rect(gameDisplay, self.color, [self.upper_tube_x, self.upper_tube_y, self.tube_width, self.tube_height])
+        pg.draw.rect(gameDisplay, self.color, [self.lower_tube_x, self.lower_tube_y, self.tube_width, self.tube_height])
 
     def zero_shift(self):
-        self.pillar_shift = 0
+        self.tube_shift = 0
 
 
-class GeneratePillars:
-    pillar_speed = 8
-    pillar_width = 100
-    pillar_height = 600
-    lower_pillar_min_height = 1 / 3 * display_height
+class TubeManagement(Tube):
+    tube_speed = 8
+    tube_width = 100
+    tube_height = 600
+    lower_tube_min_height = 1 / 3 * display_height
     i = 0
-    pillars_list = []
+    tubes = []
 
-    def __init__(self, quantity, lpillar_startx, lpillar_starty,
-                 upillar_startx, upillar_starty):
+    def __init__(self, quantity, lower_tube_x, lower_tube_y, upper_tube_x, upper_tube_y):
+        super().__init__(upper_tube_x, upper_tube_y, lower_tube_x, lower_tube_y, self.tube_width, self.tube_height)
         self.quantity = quantity
-        self.lpillar_startx = lpillar_startx
-        self.lpillar_starty = lpillar_starty
-        self.upillar_startx = upillar_startx
-        self.upillar_starty = upillar_starty
 
-    def generate_pillars(self):
+    def generate_tubes(self):
+        for self.i in range(self.quantity):
+            self._get_equal_tube_x_distances()
 
-        for pillar in range(self.quantity):
-            self.lpillar_startx = \
-                (display_width + self.i * self.pillar_width +
-                 (display_width - (self.quantity - 1) *
-                  self.pillar_width) * self.i / self.quantity)
+            if len(self.tubes) < self.quantity:
+                self._create_tubes_pair()
 
-            self.upillar_startx = self.lpillar_startx
-
-            if len(self.pillars_list) < self.quantity:
-                self.pillars_list.append(Pillar(self.upillar_startx,
-                                                self.upillar_starty,
-                                                self.lpillar_startx,
-                                                self.lpillar_starty,
-                                                self.pillar_width,
-                                                self.pillar_height, ))
-                self.pillars_list[self.i].lpillary = \
-                    random.randrange(self.lower_pillar_min_height, display_height)
-                self.pillars_list[self.i].upillary = \
-                    self.pillars_list[self.i].lpillary - 800
-
-            if self.pillars_list[self.i].lpillarx <= 0 - self.pillar_width + self.pillar_speed \
-                    and not self.pillars_list[self.i].first_iteration:
-                self.pillars_list[self.i].lpillary = \
-                    random.randrange(self.lower_pillar_min_height, display_height)
-                self.pillars_list[self.i].upillary = \
-                    self.pillars_list[self.i].lpillary - 800
+            if self.tubes[self.i].first_iteration:
+                self.tubes[self.i].upper_tube_x = self.upper_tube_x
+                self.tubes[self.i].lower_tube_x = self.lower_tube_x
             else:
-                if self.pillars_list[self.i].first_iteration:
-                    self.pillars_list[self.i].upillarx = self.upillar_startx
-                    self.pillars_list[self.i].lpillarx = self.lpillar_startx
-                else:
-                    self.pillars_list[self.i].upillarx = display_width
-                    self.pillars_list[self.i].lpillarx = display_width
+                self.tubes[self.i].upper_tube_x = display_width
+                self.tubes[self.i].lower_tube_x = display_width
 
-            self.i += 1
+    def _get_equal_tube_x_distances(self):
+        self.lower_tube_x = (display_width + self.i * self.tube_width + (display_width -
+                            (self.quantity - 1) * self.tube_width) * self.i / self.quantity)
+        self.upper_tube_x = self.lower_tube_x
 
-        self.i = 0
+    def _create_tubes_pair(self):
+        self.tubes.append(Tube(self.upper_tube_x,
+                               self.upper_tube_y,
+                               self.lower_tube_x,
+                               self.lower_tube_y,
+                               self.tube_width,
+                               self.tube_height))
+        self.tubes[self.i].lower_tube_y = random.randrange(int(self.lower_tube_min_height), display_height)
+        self.tubes[self.i].upper_tube_y = self.tubes[self.i].lower_tube_y - 800
 
     def refresh(self):
-        self.pillars_list.clear()
+        self.tubes.clear()
 
     def display(self):
-        for pillar in self.pillars_list:
-            pillar.display_pillar()
+        for tube in self.tubes:
+            tube.display_tube()
 
-    def move_pillars(self):
-        for pillar in self.pillars_list:
-            pillar.pillar_shift -= self.pillar_speed
+    def move_tubes(self):
+        for tube in self.tubes:
+            tube.tube_shift -= self.tube_speed
 
-    def move_to_startpos(self):
-
-        for pillar in self.pillars_list:
-            if pillar.lpillarx + self.pillar_width <= 0:
-                pillar.lpillarx = display_width
-                pillar.lpillary = random.randrange(self.lower_pillar_min_height, display_height)
-
-                pillar.upillarx = pillar.lpillarx
-                pillar.upillary = pillar.lpillary - 800
-
-                pillar.zero_shift()
-                pillar.first_iteration = False
-
-            self.i += 1
-
-        self.i = 0
+    def restart_position(self):
+        for tube in self.tubes:
+            if tube.lower_tube_x + self.tube_width <= 0:
+                tube.lower_tube_x = display_width
+                tube.lower_tube_y = random.randrange(round(self.lower_tube_min_height), display_height)
+                tube.upper_tube_x = tube.lower_tube_x
+                tube.upper_tube_y = tube.lower_tube_y - 800
+                tube.zero_shift()
+                tube.first_iteration = False
 
 
 def text_objects(text, font):
@@ -201,22 +165,21 @@ def text_objects(text, font):
 
 
 def display_message(text):
-    largetext = pg.font.Font('freesansbold.ttf', 115)
-    textsurf, textrect = text_objects(text, largetext)
-    textrect.center = ((display_width / 2), (display_height / 2))
-    gameDisplay.blit(textsurf, textrect)
+    large_text = pg.font.Font('freesansbold.ttf', 115)
+    text_surf, text_rect = text_objects(text, large_text)
+    text_rect.center = ((display_width / 2), (display_height / 2))
+    gameDisplay.blit(text_surf, text_rect)
 
     pg.display.update()
-
     time.sleep(2)
-
     game_loop()
 
+
 def display_points(text):
-    largetext = pg.font.Font('freesansbold.ttf', 20)
-    textsurf, textrect = text_objects("Points: " + text, largetext)
-    textrect.center = ((display_width - 60), (display_height / 20))
-    gameDisplay.blit(textsurf, textrect)
+    large_text = pg.font.Font('freesansbold.ttf', 20)
+    text_surf, text_rect = text_objects("Points: " + text, large_text)
+    text_rect.center = ((display_width - 60), (display_height / 20))
+    gameDisplay.blit(text_surf, text_rect)
 
     pg.display.update()
 
@@ -224,25 +187,21 @@ def display_points(text):
 def crash():
     display_message("You crashed")
 
-def points(points):
-    display_points(str(points))
-
 
 def game_loop():
     global game_exit
     global display_height
-    x = (display_width * 0.1)
-    y = (display_height * 0.65)
-    jump = False
+    bird_start_x = (display_width * 0.1)
+    bird_start_y = (display_height * 0.65)
+    _jump = False
+    tube_speed = 8
 
-    pillar_speed = 8
+    gt = TubeManagement(3, display_width,
+                        random.randrange(1, display_height),
+                        display_width, random.randrange(1, display_height))
+    gt.generate_tubes()
 
-    gp = GeneratePillars(3, display_width,
-                         random.randrange(1, display_height),
-                         display_width, random.randrange(1, display_height))
-    gp.generate_pillars()
-
-    bird = Bird(x, y, jump, pillar_speed)
+    bird = Bird(bird_start_x, bird_start_y, _jump, tube_speed)
 
     while not game_exit:
 
@@ -251,26 +210,24 @@ def game_loop():
                 game_exit = True
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_UP:
-                    bird._jump(jump=False)
-                    jump = True
+                    bird.jump(False)
+                    _jump = True
 
-        if jump:
-            bird._jump(jump)
+        if _jump:
+            bird.jump(_jump)
 
         gameDisplay.fill(blue)
 
-        gp.generate_pillars()
-        gp.display()
-
+        gt.generate_tubes()
+        gt.display()
         bird.display()
-
-        gp.move_pillars()
-        gp.move_to_startpos()
+        gt.move_tubes()
+        gt.restart_position()
 
         if bird.collision():
-            gp.refresh()
+            gt.refresh()
             crash()
-        points(bird.get_points())
+        display_points(str(bird.get_points()))
 
         pg.display.update()
         clock.tick(60)
